@@ -599,7 +599,7 @@ const App: React.FC = () => {
                   </svg>
                   <div>
                     <p className="font-medium text-text-h">Helpline</p>
-                    <p className="text-text/6">+91 98765 43210</p>
+                    <p className="text-text/6">+918112545387</p>
                   </div>
                 </div>
                 <div className="flex items-start">
