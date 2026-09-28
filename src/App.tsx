@@ -1,71 +1,64 @@
 import React, { useState } from 'react'
 
-type Page = 'home' | 'services' | 'service-detail' | 'vendors' | 'vendor-detail' | 'about' | 'contact' | 'login' | 'terms' | 'privacy'
+type DetailSelection = { type: 'service' | 'vendor'; slug: string }
+type Page = 'home' | 'terms' | 'privacy'
 
 const getCurrentPage = (): Page => {
   const path = window.location.pathname
     .slice(import.meta.env.BASE_URL.length)
     .replace(/^\/+|\/+$/g, '')
-    .split('/')
 
-  if (path[0] === 'services' && path.length === 2) return 'service-detail'
-  if (path[0] === 'vendors' && path.length === 2) return 'vendor-detail'
-
-  switch (path[0]) {
-    case 'services': return 'services'
-    case 'vendors': return 'vendors'
-    case 'about': return 'about'
-    case 'contact': return 'contact'
-    case 'login': return 'login'
-    case 'terms': return 'terms'
-    case 'privacy': return 'privacy'
-    default:
-      return 'home'
-  }
+  return path === 'terms' || path === 'privacy' ? path : 'home'
 }
 
-const getPageUrl = (page: Exclude<Page, 'vendor-detail' | 'service-detail'>) =>
-  page === 'home' ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}${page}/`
+const getPageUrl = (destination: 'top' | 'services' | 'vendors' | 'about' | 'contact' | 'login' | 'terms' | 'privacy') => {
+  if (destination === 'terms' || destination === 'privacy') {
+    return `${import.meta.env.BASE_URL}${destination}/`
+  }
 
-const getNestedPageSlug = (section: 'services' | 'vendors') => {
-  const path = window.location.pathname
+  const homePath = window.location.pathname
     .slice(import.meta.env.BASE_URL.length)
     .replace(/^\/+|\/+$/g, '')
-    .split('/')
 
-  return path[0] === section ? path[1] : undefined
+  return homePath ? `${import.meta.env.BASE_URL}#${destination}` : `#${destination}`
 }
 
 const serviceGallery = {
   tents: [
-    ['https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80', 'Wedding tent arrangement'],
-    ['https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80', 'Elegant outdoor canopy setup'],
-    ['https://images.unsplash.com/photo-1526045478516-99145907023c?auto=format&fit=crop&w=1200&q=80', 'Wedding tent with floral decor'],
+    ['/images/services/tents-canopies-1.jpg', 'Wedding ceremony beneath a draped canopy'],
+    ['/images/services/tents-canopies-2.jpg', 'Floral wedding aisle beneath a canopy'],
+    ['/images/services/tents-canopies-3.jpg', 'Illuminated canopy at an evening wedding reception'],
+    ['/images/services/tents-canopies-4.jpg', 'Outdoor wedding reception under a decorated tent'],
   ],
   lawns: [
-    ['https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1200&q=80', 'Wedding ceremony on a lawn'],
-    ['https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1200&q=80', 'Open-air wedding venue'],
-    ['https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1200&q=80', 'Garden ceremony venue'],
+    ['/images/services/wedding-lawns-1.jpg', 'Outdoor lawn ceremony with floral decor'],
+    ['/images/services/wedding-lawns-2.jpg', 'Open-air wedding venue at sunset'],
+    ['/images/services/wedding-lawns-3.jpg', 'Garden wedding lawn reception with evening lights'],
+    ['/images/services/wedding-lawns-4.jpg', 'Wedding ceremony setup on a landscaped lawn'],
   ],
   photoVideo: [
-    ['https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80', 'Wedding photography moment'],
-    ['https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=1200&q=80', 'Wedding couple portrait'],
-    ['https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1200&q=80', 'Cinematic wedding film scene'],
+    ['/images/services/photography-videography-1.jpg', 'Wedding photography and videography photo 1'],
+    ['/images/services/photography-videography-2.jpg', 'Wedding photography and videography photo 2'],
+    ['/images/services/photography-videography-3.jpg', 'Wedding photography and videography photo 3'],
+    ['/images/services/photography-videography-4.jpg', 'Wedding photography and videography photo 4'],
   ],
   reels: [
-    ['https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1200&q=80', 'Wedding short-form content'],
-    ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=80', 'Video camera for wedding reels'],
-    ['https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80', 'Behind the scenes content creation'],
+    ['/images/services/reel-shoots-1.jpg', 'Reel shoot service photo 1'],
+    ['/images/services/reel-shoots-2.jpg', 'Reel shoot service photo 2'],
+    ['/images/services/reel-shoots-3.jpg', 'Reel shoot service photo 3'],
+    ['/images/services/reel-shoots-4.jpg', 'Reel shoot service photo 4'],
   ],
   social: [
-    ['https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80', 'Digital content planning workspace'],
-    ['https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=1200&q=80', 'Creative media content planning'],
-    ['https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=1200&q=80', 'Camera and creative production setup'],
+    ['/images/services/reel-social-media-management-1.jpg', 'Reel and social media management photo 1'],
+    ['/images/services/reel-social-media-management-2.jpg', 'Reel and social media management photo 2'],
+    ['/images/services/reel-social-media-management-3.jpg', 'Reel and social media management photo 3'],
+    ['/images/services/reel-social-media-management-4.jpg', 'Reel and social media management photo 4'],
   ],
   other: [
-    ['https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1200&q=80', 'Wedding catering and decor'],
-    ['https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80', 'Floral wedding decoration'],
-    ['https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', 'Wedding reception styling'],
+    ['/images/services/other-services-1.jpg', 'Other wedding services photo 1'],
+    ['/images/services/other-services-2.jpg', 'Other wedding services photo 2'],
+    ['/images/services/other-services-3.jpg', 'Other wedding services photo 3'],
+    ['/images/services/other-services-4.jpg', 'Other wedding services photo 4'],
   ],
 } as const
 
@@ -74,70 +67,106 @@ const services = [
     slug: 'tents-canopies',
     name: 'Tents & Canopies',
     description: 'Waterproof tents, luxury tents, and outdoor canopies',
+    detailedDescription: 'A well-planned tent or canopy gives an outdoor wedding a comfortable, welcoming setting while protecting guests from sun, wind, or unexpected rain. This service covers event tents in a range of sizes, from a simple ceremony canopy to a larger covered reception space. The team can help assess the guest count, venue dimensions, access routes, and ground conditions before recommending a layout. Options may include weather-resistant roof and side panels, flooring, entryways, lighting, and coordinated fabric finishes. The setup is arranged to leave clear circulation around dining tables, the stage, and service areas, while keeping important sightlines open for the ceremony and photographs. Couples should discuss installation and dismantling times, power access, anchoring requirements, and any venue restrictions before confirming a package. A site visit is especially useful where the ground is uneven or the event is close to trees, buildings, or water. The provider can also coordinate with decorators and caterers so that the tent plan supports the wider event schedule. Final sizes, materials, furnishings, and weather provisions depend on the venue and package selected. A confirmed floor plan helps suppliers avoid crowding entrances and emergency access routes. Request a written quotation and confirm what is included, what requires an additional charge, and how last-minute weather decisions are handled.',
+    owner: 'Rohan Mehta (sample profile)',
+    rating: '4.8 / 5 (sample rating)',
+    location: 'Jaipur, Rajasthan (sample location)',
+    contactNumber: '+91 00000 00000 (demo number)',
     gallery: serviceGallery.tents,
   },
   {
     slug: 'wedding-lawns',
     name: 'Wedding Lawns',
     description: 'Scenic outdoor venues and lawns for ceremonies',
+    detailedDescription: 'A wedding lawn offers an open-air setting for ceremonies, receptions, and celebrations surrounded by greenery. This service helps couples explore a suitable outdoor venue based on guest capacity, event style, accessibility, and the practical needs of the day. A venue plan can include ceremony seating, an aisle, a reception dining area, space for the stage or entertainment, and clear routes for guests and staff. Couples can discuss the lawn’s available amenities, including power, restrooms, parking, preparation rooms, and weather contingencies. The natural setting can be styled with floral arrangements, lighting, a canopy, or other decor to complement the couple’s theme without obscuring the landscape. Before booking, it is useful to visit the property at the same time of day as the event, review access for suppliers, and ask about sound limits, setup windows, cleanup, and any restrictions on outdoor installations. The team can coordinate with tent, catering, and decor providers so that each area fits comfortably within the grounds. Since outdoor conditions can change, a practical backup plan for rain or heat should be discussed in advance. Venue availability, included facilities, capacity, and package terms vary by property and date; couples should confirm each detail directly and request it in writing.',
+    owner: 'Ananya Sharma (sample profile)',
+    rating: '4.7 / 5 (sample rating)',
+    location: 'Udaipur, Rajasthan (sample location)',
+    contactNumber: '+91 00000 00000 (demo number)',
     gallery: serviceGallery.lawns,
   },
   {
     slug: 'photography-videography',
     name: 'Photography & Videography',
     description: 'Candid and traditional photography, plus cinematic wedding videography',
+    detailedDescription: 'Wedding photography and videography preserve the moments, people, and atmosphere that make a celebration personal. This combined service can cover key events from preparations and the ceremony through portraits, family photographs, and the reception. Before the wedding, the couple can share a schedule, preferred styles, important guests, cultural moments, and any restrictions at the venue. The team can then plan coverage, camera positions, and coordination so that important moments are documented without interrupting the event. Photography may include candid storytelling, group portraits, and carefully composed couple images. Video coverage can capture ceremony audio, speeches, movement, and the overall ambience, with the final edit shaped around the agreed format. Couples should review complete sample galleries and films, confirm how many professionals will attend, and ask about backup equipment and delivery timelines. It is also important to clarify image selection, editing, album or highlight-film options, file formats, usage rights, and how long the final files remain available. Coverage hours and deliverables depend on the chosen package and event schedule. Confirm whether travel, overtime, and extra event coverage are priced separately. A planning conversation before the date helps create a realistic shot list while leaving room for spontaneous moments. All services and delivery commitments should be confirmed in a written agreement.',
+    owner: 'Kabir Sethi (sample profile)',
+    rating: '4.9 / 5 (sample rating)',
+    location: 'New Delhi (sample location)',
+    contactNumber: '+91 00000 00000 (demo number)',
     gallery: serviceGallery.photoVideo,
   },
   {
     slug: 'reel-shoots',
     name: 'Reel Shoots',
     description: 'Short-form content and wedding reels',
+    detailedDescription: 'A wedding reel shoot is designed to capture lively, shareable highlights in a short vertical-video format. The creator works around the event schedule to film details such as decor, entrances, candid reactions, dance-floor moments, and brief couple clips. Before the celebration, couples can discuss the mood they want, preferred music, visual references, important moments, and whether they want natural behind-the-scenes footage or more directed scenes. A simple shot plan helps the creator work efficiently without taking the couple away from their guests for long periods. Filming is coordinated with the photography and videography team to avoid blocking key views or disrupting formal moments. Sharing a finalized schedule and designated contact makes on-site coordination smoother. After the event, selected clips can be edited with pacing, captions, transitions, and music appropriate to the agreed style and platform format. Couples should confirm how many edited reels are included, expected video length, revision limits, delivery time, and whether raw clips are provided. Music and platform usage rights should also be discussed, since not every track is cleared for every use. This service focuses on short-form social content and complements, rather than replaces, full event photography or film coverage. Exact coverage, editing, and delivery depend on the agreed package.',
+    owner: 'Ishita Rao (sample profile)',
+    rating: '4.8 / 5 (sample rating)',
+    location: 'Mumbai, Maharashtra (sample location)',
+    contactNumber: '+91 00000 00000 (demo number)',
     gallery: serviceGallery.reels,
   },
   {
     slug: 'reel-social-media-management',
     name: 'Reel and Social Media Management',
     description: 'Reel creation, content planning, and social media management',
+    detailedDescription: 'Reel and social media management combines short-form wedding content with thoughtful planning for a couple’s chosen social channels. Work can begin before the event with a conversation about the couple’s preferred tone, privacy boundaries, key milestones, and the people or moments they would like featured. A content plan can organize ideas for announcements, event-day stories, short vertical videos, and post-wedding highlights. On the day, the creator captures agreed moments while respecting the schedule and the couple’s requests about guests, children, and sensitive ceremonies. Afterward, footage can be selected and edited into reels, with captions and formatting adapted for the intended platforms. Management support may also include preparing a posting calendar, drafting captions, organizing approved assets, and scheduling content when requested. Couples retain control over what is published: review and approval steps should be agreed before any post goes live, and account access should never be shared without clear safeguards. Written approval steps help ensure private moments are not published unintentionally. Confirm the number of filming hours, content pieces, revisions, delivery format, posting responsibilities, and any ongoing management period. This service is intended to complement formal photo and video coverage, not replace it. Platform features and music rights can change, so final posting plans should be checked against current platform rules.',
+    owner: 'Meera Kapoor (sample profile)',
+    rating: '4.6 / 5 (sample rating)',
+    location: 'Bengaluru, Karnataka (sample location)',
+    contactNumber: '+91 00000 00000 (demo number)',
     gallery: serviceGallery.social,
   },
   {
     slug: 'other-services',
     name: 'Other Services',
     description: 'Catering, decoration, and more',
+    detailedDescription: 'Wedding celebrations often need several supporting services to bring the couple’s plans together. This listing covers a range of options such as catering, floral and venue decoration, table styling, lighting, and related event support. Couples can describe the scale and style of their celebration, share the venue layout, guest count, dietary needs, and event schedule, then discuss which services are available for their date. For catering, it is helpful to review sample menus, serving style, tasting arrangements, dietary accommodations, and how food service will coordinate with the program. For decoration, conversations can cover a visual theme, color palette, floral preferences, installation timing, venue rules, and what will be removed after the event. A site visit and clear floor plan can help providers plan deliveries, staffing, setup, and guest movement. Ask for an itemized proposal that separates included materials and labor from optional upgrades, transport, taxes, and overtime. A shared schedule helps each provider coordinate setup and avoid delays. It is also useful to clarify who will be the on-site point of contact and how changes are handled as the date approaches. This category includes different kinds of work, so not every provider offers every service. Confirm the selected provider’s scope, availability, safety requirements, and cancellation terms directly before making arrangements.',
+    owner: 'Arjun Malhotra (sample profile)',
+    rating: '4.7 / 5 (sample rating)',
+    location: 'Pune, Maharashtra (sample location)',
+    contactNumber: '+91 00000 00000 (demo number)',
     gallery: serviceGallery.other,
   },
 ]
 
 const vendorImages = {
   tents: [
-    ['https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80', 'Elegant wedding tent setup'],
-    ['https://images.unsplash.com/photo-1526045478516-99145907023c?auto=format&fit=crop&w=1200&q=80', 'Wedding tent and floral decor'],
-    ['https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80', 'Outdoor wedding tent reception'],
+    ['/images/vendors/luxury-tent-palace-1.jpg', 'Luxury tent palace photo 1'],
+    ['/images/vendors/luxury-tent-palace-2.jpg', 'Luxury tent palace photo 2'],
+    ['/images/vendors/luxury-tent-palace-3.jpg', 'Luxury tent palace photo 3'],
+    ['/images/vendors/luxury-tent-palace-4.jpg', 'Luxury tent palace photo 4'],
   ],
   lawn: [
-    ['https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1200&q=80', 'Wedding ceremony on a scenic lawn'],
-    ['https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=1200&q=80', 'Outdoor wedding lawn venue'],
-    ['https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1200&q=80', 'Garden wedding ceremony venue'],
+    ['/images/vendors/riverside-wedding-lawn-1.jpg', 'Riverside wedding lawn photo 1'],
+    ['/images/vendors/riverside-wedding-lawn-2.jpg', 'Riverside wedding lawn photo 2'],
+    ['/images/vendors/riverside-wedding-lawn-3.jpg', 'Riverside wedding lawn photo 3'],
+    ['/images/vendors/riverside-wedding-lawn-4.jpg', 'Riverside wedding lawn photo 4'],
   ],
   photography: [
-    ['https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=80', 'Wedding photography moment'],
-    ['https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=1200&q=80', 'Wedding couple portrait'],
-    ['https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=1200&q=80', 'Candid wedding portrait'],
+    ['/images/vendors/candid-moments-1.jpg', 'Candid Moments photo 1'],
+    ['/images/vendors/candid-moments-2.jpg', 'Candid Moments photo 2'],
+    ['/images/vendors/candid-moments-3.jpg', 'Candid Moments photo 3'],
+    ['/images/vendors/candid-moments-4.jpg', 'Candid Moments photo 4'],
   ],
   videography: [
-    ['https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1200&q=80', 'Wedding film celebration scene'],
-    ['https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80', 'Wedding celebration film scene'],
-    ['https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1200&q=80', 'Wedding couple in a cinematic scene'],
+    ['/images/vendors/everlasting-memories-1.jpg', 'Everlasting Memories photo 1'],
+    ['/images/vendors/everlasting-memories-2.jpg', 'Everlasting Memories photo 2'],
+    ['/images/vendors/everlasting-memories-3.jpg', 'Everlasting Memories photo 3'],
+    ['/images/vendors/everlasting-memories-4.jpg', 'Everlasting Memories photo 4'],
   ],
   reels: [
-    ['https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1200&q=80', 'Wedding reel production scene'],
-    ['https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=80', 'Camera setup for short-form video'],
-    ['https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=80', 'Behind the scenes of wedding content creation'],
+    ['/images/vendors/reel-it-right-studios-1.jpg', 'Reel It Right Studios photo 1'],
+    ['/images/vendors/reel-it-right-studios-2.jpg', 'Reel It Right Studios photo 2'],
+    ['/images/vendors/reel-it-right-studios-3.jpg', 'Reel It Right Studios photo 3'],
+    ['/images/vendors/reel-it-right-studios-4.jpg', 'Reel It Right Studios photo 4'],
   ],
   decor: [
-    ['https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=80', 'Floral wedding decor and lighting'],
-    ['https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1200&q=80', 'Wedding reception decoration'],
-    ['https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80', 'Floral wedding reception decor'],
+    ['/images/vendors/event-decor-hub-1.jpg', 'Event Decor Hub photo 1'],
+    ['/images/vendors/event-decor-hub-2.jpg', 'Event Decor Hub photo 2'],
+    ['/images/vendors/event-decor-hub-3.jpg', 'Event Decor Hub photo 3'],
+    ['/images/vendors/event-decor-hub-4.jpg', 'Event Decor Hub photo 4'],
   ],
 } as const
 
@@ -147,6 +176,9 @@ const vendors = [
     name: 'Luxury Tent Palace',
     category: 'Deluxe tent packages',
     description: 'Premium tent rentals for weddings and events. Waterproof, elegant, and customizable options available.',
+    detailedDescription: 'Luxury Tent Palace offers covered event spaces designed to make outdoor wedding celebrations comfortable and visually cohesive. Couples can discuss tent styles and sizes based on their guest count, venue dimensions, ceremony format, and reception layout. Package options may include weather-resistant roofing, side panels, flooring, entryways, lighting, and coordinated fabric finishes. The team can help plan clear routes between the ceremony, dining tables, stage, and service areas, while considering sightlines for guests and photographers. A site visit is useful for checking ground conditions, access for delivery vehicles, anchoring requirements, and venue restrictions. Couples should confirm setup and dismantling windows, power availability, rain or wind contingencies, and what furnishings or decor are included. Coordination with the venue, caterer, and decorator can help avoid schedule conflicts and ensure that essential walkways remain open. Before booking, review an itemized proposal that specifies tent dimensions, materials, labor, transport, optional upgrades, taxes, and any overtime charges. Ask how changes in guest count or weather plans affect the final arrangement. The sample profile reflects a general tent-rental offering only; actual equipment, availability, service area, and package terms must be confirmed directly with the provider. A written agreement helps document expectations, timing, and responsibilities for event day.',
+    rating: '4.8 / 5 (sample rating)',
+    location: 'Jaipur, Rajasthan (sample location)',
     price: '₹80,000',
     image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=80',
     gallery: vendorImages.tents,
@@ -156,6 +188,9 @@ const vendors = [
     name: 'Riverside Wedding Lawn',
     category: 'Open air venue',
     description: 'Scenic riverside location with natural beauty and modern amenities for wedding ceremonies.',
+    detailedDescription: 'Riverside Wedding Lawn is presented as an open-air venue for couples seeking a scenic setting for a ceremony, reception, or multi-part celebration. The grounds can be planned around guest capacity, event timing, and the natural features of the property, with areas for seating, an aisle, dining, entertainment, and guest circulation. Couples should arrange a site visit to understand the landscape, river access, lighting at the planned event time, and available indoor or covered alternatives. Ask which facilities are included, such as parking, restrooms, preparation rooms, electrical access, and on-site support. Outdoor celebrations also require clear plans for changing weather, guest comfort, sound limits, and safe boundaries near water. The venue team can coordinate with tent, catering, and decor providers so that delivery routes and setup windows work within the property’s rules. Before confirming a date, review the capacity, booking hours, cleanup requirements, noise policies, cancellation terms, and any restrictions on installations or open flames. Request a written proposal that lists included services and optional charges separately. The sample profile describes a typical garden venue experience and does not verify the real property, amenities, or views. Availability, exact location, facilities, and package terms should be confirmed directly before making travel or booking arrangements.',
+    rating: '4.7 / 5 (sample rating)',
+    location: 'Udaipur, Rajasthan (sample location)',
     price: '₹1,50,000',
     image: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=900&q=80',
     gallery: vendorImages.lawn,
@@ -165,6 +200,9 @@ const vendors = [
     name: 'Candid Moments',
     category: 'Wedding photography',
     description: 'Candid wedding photography capturing every emotion and moment of your special day with artistic storytelling.',
+    detailedDescription: 'Candid Moments focuses on documenting a wedding as it unfolds, balancing spontaneous interactions with the portraits and family photographs couples may want to keep. Coverage can be planned around the event schedule, cultural traditions, key guests, venue rules, and moments that matter most to the couple. A pre-event conversation helps the photographer understand preferred editing style, group-photo priorities, privacy boundaries, and any restrictions on flash or movement during the ceremony. Couples should review full sample galleries from similar events rather than relying only on a small selection of highlights. It is also worth confirming the number of photographers, coverage hours, travel arrangements, backup equipment, and the process for handling schedule changes. Package details may include edited digital photographs, an album, or additional event coverage, each with separate timelines and costs. Ask how images are selected, how many are delivered, what file formats are provided, and whether personal or commercial usage is permitted. A written agreement should state delivery expectations, revision policies, and how long the gallery remains accessible. This sample description outlines a photography service and is not a verified claim about a particular provider’s portfolio or workflow. Confirm availability, deliverables, and terms directly before booking. Discuss low-light coverage and how the team handles fast-moving ceremony moments.',
+    rating: '4.9 / 5 (sample rating)',
+    location: 'New Delhi (sample location)',
     price: '₹45,000',
     image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=80',
     gallery: vendorImages.photography,
@@ -174,6 +212,9 @@ const vendors = [
     name: 'Everlasting Memories',
     category: 'Wedding videography',
     description: 'Cinematic wedding videography and highlight reels that tell your love story beautifully.',
+    detailedDescription: 'Everlasting Memories is presented as a wedding film service that records the atmosphere, voices, and movement of a celebration. Coverage can include preparations, the ceremony, family moments, speeches, and the reception, shaped around the couple’s schedule and preferred film style. Before the event, couples can share important traditions, key people, music preferences, venue restrictions, and moments that should receive particular attention. Ask how the videography team coordinates with photographers so that both can capture key events without obstructing guests or one another. Review complete films from comparable weddings to understand pacing, audio quality, color treatment, and the balance between candid scenes and directed portraits. Confirm how many crew members will attend, what equipment and audio capture are used, and whether backup recording plans are available. The proposal should specify filming hours, edited deliverables, approximate film length, delivery format, revision limits, and expected turnaround. Couples should also clarify music licensing, file access duration, raw-footage availability, travel, and overtime charges. This sample profile describes a general cinematic wedding-film offering; it does not verify a specific portfolio, equipment list, or delivery record. Confirm all details in writing with the provider before booking. Discuss how vows and speeches will be recorded clearly. Confirm delivery resolution details.',
+    rating: '4.8 / 5 (sample rating)',
+    location: 'Mumbai, Maharashtra (sample location)',
     price: '₹65,000',
     image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80',
     gallery: vendorImages.videography,
@@ -183,6 +224,9 @@ const vendors = [
     name: 'Reel It Right Studios',
     category: 'Reel shoots',
     description: 'Professional short-form content and wedding reel production for social media and entertainment.',
+    detailedDescription: 'Reel It Right Studios is presented as a short-form video service for couples who want quick, shareable highlights from their wedding celebration. A planning discussion can identify the desired tone, vertical-video format, important moments, visual references, and any people or rituals that should remain private. On the event day, the creator can capture details, entrances, candid reactions, dance-floor scenes, and brief couple clips around the schedule. Coordination with the photography and film teams is important so that filming does not block views or disrupt formal moments. Couples should discuss how much direction they prefer and how much time, if any, is set aside for staged clips. After the event, selected footage may be edited with pacing, transitions, captions, and music according to the agreed style. Confirm the number and expected length of finished reels, coverage hours, delivery timeline, revision policy, and whether original clips are included. Ask about music usage rights and platform restrictions before publishing. Confirm the preferred aspect ratio, captions, and delivery method before the event. This sample description reflects a typical reel-production workflow and does not verify a specific studio’s portfolio or deliverables. Review sample work and agree all package terms in writing before booking. Confirm clip delivery resolution.',
+    rating: '4.6 / 5 (sample rating)',
+    location: 'Bengaluru, Karnataka (sample location)',
     price: '₹35,000',
     image: 'https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=900&q=80',
     gallery: vendorImages.reels,
@@ -192,13 +236,16 @@ const vendors = [
     name: 'Event Decor Hub',
     category: 'Decoration services',
     description: 'Complete wedding decoration services including flowers, lighting, and theme decor.',
+    detailedDescription: 'Event Decor Hub is presented as a wedding styling service that can help bring a couple’s visual theme to the ceremony and reception spaces. Planning may cover a color palette, floral preferences, stage and aisle styling, table arrangements, lighting, and decor details suited to the venue. A clear brief, reference images, guest count, floor plan, and event timeline help the decorator create a practical proposal. A site visit can identify installation access, power needs, venue rules, ceiling or rigging limits, and what can safely be attached to existing structures. Couples should clarify which flowers and materials are included, whether substitutions may occur, and how seasonal availability affects the design. The schedule should specify delivery, setup, handover, and removal times, as well as who will coordinate with the venue and other suppliers. Ask for an itemized estimate separating design, materials, labor, transport, lighting, and optional upgrades. It is also important to discuss reusable or rented items, cleanup responsibilities, cancellation terms, and how final changes are priced. Request references that match your venue and theme. This sample profile describes a general decor offering and does not verify a provider’s inventory, past work, or service area. Review photos of completed installations and confirm scope and terms in writing before booking.',
+    rating: '4.7 / 5 (sample rating)',
+    location: 'Pune, Maharashtra (sample location)',
     price: '₹25,000',
     image: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80',
     gallery: vendorImages.decor,
   },
 ]
 
-const mobileNavigationLinks: Array<{ label: string; page: Exclude<Page, 'home' | 'vendor-detail' | 'service-detail'> }> = [
+const mobileNavigationLinks: Array<{ label: string; page: 'services' | 'vendors' | 'about' | 'contact' }> = [
   { label: 'Services', page: 'services' },
   { label: 'Vendors', page: 'vendors' },
   { label: 'About', page: 'about' },
@@ -374,16 +421,15 @@ const legalContent = {
 const App: React.FC = () => {
   const [loginMessage, setLoginMessage] = useState('')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [selectedDetail, setSelectedDetail] = useState<DetailSelection | null>(null)
   const currentPage = getCurrentPage()
-  const selectedService = currentPage === 'service-detail'
-    ? services.find((service) => service.slug === getNestedPageSlug('services'))
+  const selectedService = selectedDetail?.type === 'service'
+    ? services.find((service) => service.slug === selectedDetail.slug)
     : undefined
-  const selectedVendor = currentPage === 'vendor-detail'
-    ? vendors.find((vendor) => vendor.slug === getNestedPageSlug('vendors'))
+  const selectedVendor = selectedDetail?.type === 'vendor'
+    ? vendors.find((vendor) => vendor.slug === selectedDetail.slug)
     : undefined
-  const legalDocument = currentPage === 'terms' || currentPage === 'privacy'
-    ? legalContent[currentPage]
-    : undefined
+  const selectedContent = selectedService ?? selectedVendor
 
   const handleLoginSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -395,7 +441,7 @@ const App: React.FC = () => {
       {/* Navbar */}
       <nav className="border-b border-border/50 bg-background/95 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300 hover:bg-background/98">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          <a href={getPageUrl('home')} className="shrink-0 font-semibold text-text-h text-base sm:text-lg tracking-tight">WeddingVendors.in</a>
+          <a href={getPageUrl('top')} className="shrink-0 font-semibold text-text-h text-base sm:text-lg tracking-tight">WeddingVendors.in</a>
           
           <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             <a href={getPageUrl('services')} className="text-sm text-text-h hover:text-text-h transition-colors relative after:content-[''] after:absolute after:left-0 after:-bottom-1 after:w-0 after:h-0.5 after:bg-accent after:transition-all after:duration-300 after:opacity-0 hover:after:w-full hover:after:opacity-100">
@@ -478,23 +524,19 @@ const App: React.FC = () => {
           </div>
         </div>
       </header>
-      </>
-      )}
 
-      {currentPage === 'services' && (
-      <>
       {/* Services Categories */}
       <section id="services" className="py-16 sm:py-20 md:py-32 bg-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-3xl sm:text-4xl font-bold text-text-h mb-8 sm:mb-10 text-center">Our Services</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* Tent Services */}
-            <a href={`${getPageUrl('services')}tents-canopies/`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent">
+            <button type="button" onClick={() => setSelectedDetail({ type: 'service', slug: 'tents-canopies' })} className="block w-full rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-accent">
             <div className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10 cursor-pointer">
               <div className="relative h-52 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1526045478516-99145907023c?auto=format&fit=crop&w=900&q=80" 
-                  alt="Luxury wedding tent" 
+                  src="https://images.unsplash.com/photo-1618106494700-4b0049e83ed8?auto=format&fit=crop&w=900&q=80" 
+                  alt="White event canopy tent on a grassy field" 
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -510,15 +552,15 @@ const App: React.FC = () => {
                 <p className="mt-2 text-sm text-text/6">Waterproof tents, luxury tents, and outdoor canopies</p>
               </div>
             </div>
-            </a>
+            </button>
 
             {/* Lawn Services */}
-            <a href={`${getPageUrl('services')}wedding-lawns/`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent">
+            <button type="button" onClick={() => setSelectedDetail({ type: 'service', slug: 'wedding-lawns' })} className="block w-full rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-accent">
             <div className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10 cursor-pointer">
               <div className="relative h-52 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=900&q=80" 
-                  alt="Wedding lawn venue" 
+                  src="https://images.unsplash.com/photo-1762216444919-043cf813e4de?auto=format&fit=crop&w=900&q=80" 
+                  alt="Outdoor wedding ceremony in a lush garden" 
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -534,15 +576,15 @@ const App: React.FC = () => {
                 <p className="mt-2 text-sm text-text/6">Scenic outdoor venues and lawns for ceremonies</p>
               </div>
             </div>
-            </a>
+            </button>
 
             {/* Photography & Videography */}
-            <a href={`${getPageUrl('services')}photography-videography/`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent">
+            <button type="button" onClick={() => setSelectedDetail({ type: 'service', slug: 'photography-videography' })} className="block w-full rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-accent">
             <div className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10 cursor-pointer">
               <div className="relative h-52 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=900&q=80" 
-                  alt="Wedding photography and videography" 
+                  src="https://images.unsplash.com/photo-1529258132933-bc07a7487d1d?auto=format&fit=crop&w=900&q=80" 
+                  alt="Wedding videographer filming with a stabilized camera" 
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -558,15 +600,15 @@ const App: React.FC = () => {
                 <p className="mt-2 text-sm text-text/6">Candid and traditional photography, plus cinematic wedding videography</p>
               </div>
             </div>
-            </a>
+            </button>
 
             {/* Reel Shoots */}
-            <a href={`${getPageUrl('services')}reel-shoots/`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent">
+            <button type="button" onClick={() => setSelectedDetail({ type: 'service', slug: 'reel-shoots' })} className="block w-full rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-accent">
             <div className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10 cursor-pointer">
               <div className="relative h-52 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=900&q=80" 
-                  alt="Wedding reel shoot" 
+                  src="https://images.unsplash.com/photo-1768777271060-4b76e9ebf582?auto=format&fit=crop&w=900&q=80" 
+                  alt="Smartphone recording a wedding ceremony by the ocean" 
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -582,15 +624,15 @@ const App: React.FC = () => {
                 <p className="mt-2 text-sm text-text/6">Short-form content and wedding reels</p>
               </div>
             </div>
-            </a>
+            </button>
 
             {/* Reel and Social Media Management */}
-            <a href={`${getPageUrl('services')}reel-social-media-management/`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent">
+            <button type="button" onClick={() => setSelectedDetail({ type: 'service', slug: 'reel-social-media-management' })} className="block w-full rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-accent">
             <div className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10 cursor-pointer">
               <div className="relative h-52 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=80" 
-                  alt="Professional camera for creating wedding reels" 
+                  src="https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?auto=format&fit=crop&w=900&q=80" 
+                  alt="Content creator working with a laptop and smartphone" 
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -607,15 +649,15 @@ const App: React.FC = () => {
                 <p className="mt-2 text-sm text-text/6">Reel creation, content planning, and social media management</p>
               </div>
             </div>
-            </a>
+            </button>
 
             {/* Other Services */}
-            <a href={`${getPageUrl('services')}other-services/`} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-accent">
+            <button type="button" onClick={() => setSelectedDetail({ type: 'service', slug: 'other-services' })} className="block w-full rounded-2xl text-left focus:outline-none focus:ring-2 focus:ring-accent">
             <div className="group overflow-hidden rounded-2xl border border-border bg-background shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10 cursor-pointer">
               <div className="relative h-52 overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=900&q=80" 
-                  alt="Wedding catering and decor" 
+                  src="https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=900&q=80" 
+                  alt="Catered buffet with a variety of prepared dishes" 
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -632,25 +674,22 @@ const App: React.FC = () => {
                 <p className="mt-2 text-sm text-text/6">Catering, decoration, and more</p>
               </div>
             </div>
-            </a>
+            </button>
           </div>
         </div>
       </section>
-      </>
-      )}
 
-      {currentPage === 'vendors' && (
-      <>
       {/* Vendors Section */}
       <section id="vendors" className="py-16 sm:py-20 md:py-32 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <h2 className="text-3xl sm:text-4xl font-bold text-text-h mb-8 sm:mb-10 text-center animate-fade-up">Featured Vendors</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {vendors.map((vendor) => (
-              <a
+              <button
+                type="button"
                 key={vendor.slug}
-                href={`${getPageUrl('vendors')}${vendor.slug}/`}
-                className="group relative block rounded-2xl border border-border p-6 transition-all duration-300 hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus:outline-none focus:ring-2 focus:ring-accent"
+                onClick={() => setSelectedDetail({ type: 'vendor', slug: vendor.slug })}
+                className="group relative block w-full rounded-2xl border border-border p-6 text-left transition-all duration-300 hover:border-accent hover:shadow-xl hover:shadow-accent/10 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <div className="h-48 overflow-hidden bg-gradient-to-b from-accent/10 to-transparent">
                   <img
@@ -670,130 +709,128 @@ const App: React.FC = () => {
                     </span>
                   </div>
                 </div>
-              </a>
+              </button>
             ))}
           </div>
         </div>
       </section>
-      </>
-      )}
 
-      {currentPage === 'service-detail' && (
-      <section className="min-h-[calc(100vh-4rem)] bg-background py-16 sm:py-20 md:py-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <a href={getPageUrl('services')} className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-text-h">
-            <span aria-hidden="true">←</span>
-            Back to Services
-          </a>
-          {selectedService ? (
-            <div className="overflow-hidden rounded-3xl border border-border bg-white/70 shadow-xl shadow-accent/5">
-              <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.5fr_1fr] lg:p-8">
-                <div className="grid grid-cols-2 gap-3">
+      {selectedContent && (
+        <div
+          className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/50 p-4 pt-20 sm:items-center sm:py-8"
+          role="presentation"
+          onClick={() => setSelectedDetail(null)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="detail-title"
+            className="relative my-auto w-full max-w-6xl overflow-hidden rounded-3xl border border-border bg-white/95 shadow-2xl shadow-black/20 backdrop-blur-sm"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              aria-label="Close details"
+              onClick={() => setSelectedDetail(null)}
+              className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white/90 text-text-h shadow-sm transition hover:bg-accent/10 focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="m6 6 12 12M18 6 6 18" />
+              </svg>
+            </button>
+            <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.5fr_1fr] lg:p-8">
+              <div className="grid grid-cols-2 content-start gap-3">
+                {selectedContent.gallery.map(([src, alt]) => (
                   <img
-                    src={selectedService.gallery[0][0]}
-                    alt={selectedService.gallery[0][1]}
-                    className="col-span-2 h-64 w-full rounded-2xl object-cover sm:h-80"
+                    key={src}
+                    src={src}
+                    alt={alt}
+                    className={`${selectedContent.gallery.length === 4 ? 'aspect-[3/4]' : 'aspect-[4/3]'} w-full rounded-2xl object-cover`}
                   />
-                  {selectedService.gallery.slice(1).map(([src, alt]) => (
-                    <img key={src} src={src} alt={alt} className="h-36 w-full rounded-2xl object-cover sm:h-48" />
-                  ))}
-                </div>
-                <div className="flex flex-col justify-center">
-                  <span className="inline-flex w-fit rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-                    Wedding service
-                  </span>
-                  <h1 className="mt-4 text-3xl font-bold tracking-tight text-text-h sm:text-4xl">{selectedService.name}</h1>
-                  <p className="mt-4 text-base leading-7 text-text/70">{selectedService.description}</p>
+                ))}
+              </div>
+              <div className="flex flex-col justify-center">
+                <span className="inline-flex w-fit rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                  {selectedVendor?.category ?? 'Wedding service'}
+                </span>
+                <h2 id="detail-title" className="mt-4 pr-12 text-3xl font-bold tracking-tight text-text-h sm:text-4xl">
+                  {selectedContent.name}
+                </h2>
+                <p className="mt-4 text-base leading-7 text-text/70">
+                  {selectedService?.detailedDescription ?? selectedVendor?.detailedDescription ?? selectedContent.description}
+                </p>
 
-                  <div className="mt-6 space-y-4 rounded-2xl border border-border bg-background/70 p-5">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Owner</p>
-                      <p className="mt-1 text-sm font-medium text-text-h">Not provided yet</p>
-                    </div>
-                    <div className="border-t border-border pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Contact number</p>
-                      <p className="mt-1 text-sm font-medium text-text-h">Not provided yet</p>
-                    </div>
-                    <div className="border-t border-border pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Location</p>
-                      <p className="mt-1 text-sm font-medium text-text-h">Not provided yet</p>
-                    </div>
-                  </div>
-                  <a href={getPageUrl('contact')} className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 sm:w-fit">
-                    Contact Us
-                  </a>
+                <div className="mt-6 space-y-4 rounded-2xl border border-border bg-background/70 p-5">
+                  {selectedVendor ? (
+                    <>
+                      <p className="text-xs leading-5 text-text/60">
+                        Sample profile details for demonstration only. Rating and location are not verified.
+                      </p>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Price</p>
+                        <p className="mt-1 text-2xl font-bold text-text-h">{selectedVendor.price}</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Rating</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">{selectedVendor.rating}</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Location</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">{selectedVendor.location}</p>
+                      </div>
+                    </>
+                  ) : selectedService ? (
+                    <>
+                      <p className="text-xs leading-5 text-text/60">
+                        Sample profile details for demonstration only. Owner, rating, location, and contact information are not verified.
+                      </p>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Owner’s name</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">{selectedService.owner}</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Rating</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">{selectedService.rating}</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Contact number</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">{selectedService.contactNumber}</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Location</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">{selectedService.location}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Owner</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">Not provided yet</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Contact number</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">Not provided yet</p>
+                      </div>
+                      <div className="border-t border-border pt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Location</p>
+                        <p className="mt-1 text-sm font-medium text-text-h">Not provided yet</p>
+                      </div>
+                    </>
+                  )}
                 </div>
+                <a
+                  href={getPageUrl('contact')}
+                  onClick={() => setSelectedDetail(null)}
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 sm:w-fit"
+                >
+                  {selectedVendor ? 'Contact Vendor' : 'Contact Us'}
+                </a>
               </div>
             </div>
-          ) : (
-            <div className="rounded-3xl border border-border bg-white/70 p-8 text-center shadow-lg shadow-accent/5">
-              <h1 className="text-2xl font-bold text-text-h">Service not found</h1>
-              <p className="mt-2 text-sm text-text/70">This service may have moved or is unavailable.</p>
-            </div>
-          )}
+          </section>
         </div>
-      </section>
       )}
 
-      {currentPage === 'vendor-detail' && (
-      <section className="min-h-[calc(100vh-4rem)] bg-background py-16 sm:py-20 md:py-32">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <a href={getPageUrl('vendors')} className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-text-h">
-            <span aria-hidden="true">←</span>
-            Back to Vendors
-          </a>
-          {selectedVendor ? (
-            <div className="overflow-hidden rounded-3xl border border-border bg-white/70 shadow-xl shadow-accent/5">
-              <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[1.5fr_1fr] lg:p-8">
-                <div className="grid grid-cols-2 gap-3">
-                  <img
-                    src={selectedVendor.gallery[0][0]}
-                    alt={selectedVendor.gallery[0][1]}
-                    className="col-span-2 h-64 w-full rounded-2xl object-cover sm:h-80"
-                  />
-                  {selectedVendor.gallery.slice(1).map(([src, alt]) => (
-                    <img key={src} src={src} alt={alt} className="h-36 w-full rounded-2xl object-cover sm:h-48" />
-                  ))}
-                </div>
-                <div className="flex flex-col justify-center">
-                  <span className="inline-flex w-fit rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-                    {selectedVendor.category}
-                  </span>
-                  <h1 className="mt-4 text-3xl font-bold tracking-tight text-text-h sm:text-4xl">{selectedVendor.name}</h1>
-                  <p className="mt-4 text-base leading-7 text-text/70">{selectedVendor.description}</p>
-
-                  <div className="mt-6 space-y-4 rounded-2xl border border-border bg-background/70 p-5">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Price</p>
-                      <p className="mt-1 text-2xl font-bold text-text-h">{selectedVendor.price}</p>
-                    </div>
-                    <div className="border-t border-border pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Rating</p>
-                      <p className="mt-1 text-sm font-medium text-text-h">Not rated yet</p>
-                    </div>
-                    <div className="border-t border-border pt-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-text/60">Location</p>
-                      <p className="mt-1 text-sm font-medium text-text-h">Contact the vendor for location details</p>
-                    </div>
-                  </div>
-                  <a href={getPageUrl('contact')} className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-accent/90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 sm:w-fit">
-                    Contact Vendor
-                  </a>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="rounded-3xl border border-border bg-white/70 p-8 text-center shadow-lg shadow-accent/5">
-              <h1 className="text-2xl font-bold text-text-h">Vendor not found</h1>
-              <p className="mt-2 text-sm text-text/70">This vendor profile may have moved or is unavailable.</p>
-            </div>
-          )}
-        </div>
-      </section>
-      )}
-
-      {currentPage === 'about' && (
-      <>
       {/* About Us Section */}
       <section id="about" className="py-16 sm:py-20 md:py-32 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -901,11 +938,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </section>
-      </>
-      )}
 
-      {currentPage === 'login' && (
-      <>
       {/* Login Section */}
       <section id="login" className="scroll-mt-20 border-y border-border bg-gradient-to-b from-accent/5 to-background py-16 sm:py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -989,11 +1022,7 @@ const App: React.FC = () => {
           )}
         </div>
       </section>
-      </>
-      )}
 
-      {currentPage === 'contact' && (
-      <>
       {/* Contact/Support Section */}
       <section id="contact" className="py-16 sm:py-20 md:py-32 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -1022,7 +1051,7 @@ const App: React.FC = () => {
                   </svg>
                   <div>
                     <p className="font-medium text-text-h">Helpline</p>
-                    <p className="text-text/6">+918112545387</p>
+                    <p className="text-text/6">+919876543210</p>
                   </div>
                 </div>
                 <div className="flex items-start">
@@ -1052,38 +1081,63 @@ const App: React.FC = () => {
           </div>
         </div>
       </section>
+
+      <section id="legal" className="scroll-mt-20 border-t border-border bg-border/40 py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h2 className="text-3xl font-bold text-text-h sm:text-4xl">Terms & Privacy</h2>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-text/70">
+            Learn how to use WeddingVendors.in and how we handle information when you visit the site.
+          </p>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            <a href={getPageUrl('terms')} className="group rounded-2xl border border-border bg-background p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10">
+              <h3 className="text-xl font-semibold text-text-h transition-colors group-hover:text-accent">Terms of Use</h3>
+              <p className="mt-2 text-sm leading-6 text-text/70">Read the rules and important information that apply when using our website and vendor listings.</p>
+              <span className="mt-4 inline-flex text-sm font-medium text-accent">Read Terms <span className="ml-1" aria-hidden="true">→</span></span>
+            </a>
+            <a href={getPageUrl('privacy')} className="group rounded-2xl border border-border bg-background p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-accent/10">
+              <h3 className="text-xl font-semibold text-text-h transition-colors group-hover:text-accent">Privacy Policy</h3>
+              <p className="mt-2 text-sm leading-6 text-text/70">See what information may be handled when you browse the site or contact our team.</p>
+              <span className="mt-4 inline-flex text-sm font-medium text-accent">Read Privacy Policy <span className="ml-1" aria-hidden="true">→</span></span>
+            </a>
+          </div>
+        </div>
+      </section>
       </>
       )}
 
-      {legalDocument && (
-      <main className="bg-background py-16 sm:py-20 md:py-28">
-        <article className="mx-auto max-w-4xl px-4 sm:px-6">
-          <div className="rounded-3xl border border-border bg-white/70 p-6 shadow-xl shadow-accent/5 sm:p-8 md:p-10">
-            <span className="inline-flex rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-              WeddingVendors.in
-            </span>
-            <h1 className="mt-4 text-3xl font-bold tracking-tight text-text-h sm:text-4xl">{legalDocument.title}</h1>
-            <p className="mt-4 text-sm text-text/60">Last updated: 27 September 2026</p>
-            <p className="mt-6 text-base leading-8 text-text/70">{legalDocument.introduction}</p>
+      {Object.entries(legalContent).map(([slug, document]) => (
+        currentPage === slug && <main key={slug} id={slug} className="min-h-[calc(100vh-4rem)] bg-background py-16 sm:py-20 md:py-28">
+          <article className="mx-auto max-w-4xl px-4 sm:px-6">
+            <div className="rounded-3xl border border-border bg-white/70 p-6 shadow-xl shadow-accent/5 sm:p-8 md:p-10">
+              <span className="inline-flex rounded-full border border-accent/20 bg-accent/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                WeddingVendors.in
+              </span>
+              <a href={getPageUrl('top')} className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent transition-colors hover:text-text-h">
+                <span aria-hidden="true">←</span>
+                Back to home
+              </a>
+              <h1 className="mt-4 text-3xl font-bold tracking-tight text-text-h sm:text-4xl">{document.title}</h1>
+              <p className="mt-4 text-sm text-text/60">Last updated: 27 September 2026</p>
+              <p className="mt-6 text-base leading-8 text-text/70">{document.introduction}</p>
 
-            <div className="mt-10 space-y-8">
-              {legalDocument.sections.map((section) => (
-                <section key={section.title} className="border-t border-border pt-6">
-                  <h2 className="text-xl font-semibold text-text-h">{section.title}</h2>
-                  <div className="mt-3 space-y-4">
-                    {section.paragraphs.map((paragraph) => (
-                      <p key={paragraph} className="text-sm leading-7 text-text/70 sm:text-base">
-                        {paragraph}
-                      </p>
-                    ))}
-                  </div>
-                </section>
-              ))}
+              <div className="mt-10 space-y-8">
+                {document.sections.map((section) => (
+                  <section key={section.title} className="border-t border-border pt-6">
+                    <h2 className="text-xl font-semibold text-text-h">{section.title}</h2>
+                    <div className="mt-3 space-y-4">
+                      {section.paragraphs.map((paragraph) => (
+                        <p key={paragraph} className="text-sm leading-7 text-text/70 sm:text-base">
+                          {paragraph}
+                        </p>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
             </div>
-          </div>
-        </article>
-      </main>
-      )}
+          </article>
+        </main>
+      ))}
 
       {/* Footer */}
       <footer className="py-12 bg-border/50">
@@ -1091,8 +1145,8 @@ const App: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
             <div className="font-semibold text-text-h">WeddingVendors.in</div>
             <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-text/6">
-              <a href={getPageUrl('terms')} className="hover:underline transition-colors">Terms</a>
-              <a href={getPageUrl('privacy')} className="hover:underline transition-colors">Privacy</a>
+              <a href={getPageUrl('terms')} className="hover:underline transition-colors">Terms of Use</a>
+              <a href={getPageUrl('privacy')} className="hover:underline transition-colors">Privacy Policy</a>
               <a href="#" className="hover:underline transition-colors">Cookies</a>
             </div>
             <p className="mt-2 md:mt-0 text-xs text-text/6">2026 WeddingVendors.in. All rights reserved.</p>
